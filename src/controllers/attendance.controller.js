@@ -80,7 +80,8 @@ if (!selectedClass) {
            date:{
     $gte:today,
     $lt:new Date(today.getTime()+24*60*60*1000)
-}
+},
+            status: "Present"
         });
 
         if (alreadyMarked) {
@@ -98,7 +99,8 @@ const attendance = await Attendance.findOneAndUpdate(
         date:{
     $gte:today,
     $lt:new Date(today.getTime()+24*60*60*1000)
-}
+},
+        status: "Pending"
     },
     {
         status: "Present",

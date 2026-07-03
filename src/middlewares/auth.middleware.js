@@ -21,6 +21,12 @@ const verifyJWT = async (req, res, next) => {
             process.env.ACCESS_TOKEN_SECRET
         );
 
+        // Check if admin token
+        if (decoded.role === "admin") {
+            req.user = { role: "admin" };
+            return next();
+        }
+
         // Find user
         const user = await User.findById(decoded._id).select("-password");
 

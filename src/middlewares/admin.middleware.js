@@ -1,42 +1,14 @@
 const verifyAdmin = (req, res, next) => {
 
     try {
-
-        const adminEmail = req.headers["x-admin-email"];
-        const adminSecret = req.headers["x-admin-secret"];
-
-        if (
-            !adminEmail ||
-            !adminSecret
-        ) {
-
-            return res.status(401).json({
-
-                success: false,
-
-                message: "Admin credentials are required"
-
-            });
-
-        }
-
-        if (
-            adminEmail !== process.env.ADMIN_EMAIL ||
-            adminSecret !== process.env.ADMIN_SECRET
-        ) {
-
+        if (req.user && req.user.role === "admin") {
+            next();
+        } else {
             return res.status(403).json({
-
                 success: false,
-
-                message: "Invalid admin credentials"
-
+                message: "Admin access required"
             });
-
         }
-
-        next();
-
     }
 
     catch (error) {

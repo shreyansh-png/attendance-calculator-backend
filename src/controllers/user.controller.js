@@ -4,16 +4,16 @@ import jwt from "jsonwebtoken";
 
 const registerUser = async (req, res) => {
     try {
-        const { fullName, email, password, semester, branch } = req.body;
+        const { fullName, email, password, semester, branch, rollNumber, section, batch } = req.body;
 
-        if (!fullName || !email || !password || !semester || !branch) {
+        if (!fullName || !email || !password || !semester || !branch || !rollNumber || !section || !batch) {
             return res.status(400).json({
                 success: false,
                 message: "All fields are required"
             });
         }
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await User.findOne({ $or: [{ email }, { rollNumber }] });
 
         if (existingUser) {
             return res.status(409).json({
@@ -27,7 +27,10 @@ const registerUser = async (req, res) => {
             email,
             password,
             semester,
-            branch
+            branch,
+            rollNumber,
+            section,
+            batch
         });
 
         return res.status(201).json({
@@ -141,7 +144,7 @@ const logoutUser =  async (req,res) => {
     };
 
     return res
-    .statys(200)
+    .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json({

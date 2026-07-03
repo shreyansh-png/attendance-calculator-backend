@@ -46,8 +46,8 @@ section: {
     required: true,
     enum: ["A", "B"],
 },
-academicYear: {
-    type: String,
+batch: {
+    type: Number,
     required: true,
 },
     refreshToken :{

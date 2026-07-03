@@ -493,15 +493,17 @@ const getTodayTimetable = async (req, res) => {
 
                 {
 
-                    studentId: student._id,
+                    $setOnInsert: {
+                        studentId: student._id,
 
-                    classId: cls._id,
+                        classId: cls._id,
 
-                    subjectId: cls.subjectId._id || cls.subjectId,
+                        subjectId: cls.subjectId._id || cls.subjectId,
 
-                    date: todayDate,
+                        date: todayDate,
 
-                    status: "Pending"
+                        status: "Pending"
+                    }
 
                 },
 
