@@ -348,37 +348,19 @@ const changePassword = async (req, res) => {
 
         const {
 
-            oldPassword,
+            verificationCode,
 
-            newPassword,
-
-            confirmPassword
+            newPassword
 
         } = req.body;
 
-        if (
-            !oldPassword ||
-            !newPassword ||
-            !confirmPassword
-        ) {
+        if (!verificationCode || !newPassword) {
 
             return res.status(400).json({
 
                 success: false,
 
                 message: "All fields are required"
-
-            });
-
-        }
-
-        if (newPassword !== confirmPassword) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Passwords do not match"
 
             });
 
@@ -398,15 +380,17 @@ const changePassword = async (req, res) => {
 
         }
 
-        const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+        const expectedCode =
 
-        if (!isPasswordCorrect) {
+            user.rollNumber.slice(-2) + user.branch;
 
-            return res.status(401).json({
+        if (verificationCode !== expectedCode) {
+
+            return res.status(400).json({
 
                 success: false,
 
-                message: "Old password is incorrect"
+                message: "Invalid Verification Code"
 
             });
 

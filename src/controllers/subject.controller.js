@@ -58,20 +58,27 @@ const getAllSubjects = async (req, res) => {
     try {
 
         const subjects = await Subject.find().sort({
-            subjectCode: 1
+            subjectName: 1
         });
 
         return res.status(200).json({
+
             success: true,
-            count: subjects.length,
+
             data: subjects
+
         });
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         return res.status(500).json({
+
             success: false,
+
             message: error.message
+
         });
 
     }

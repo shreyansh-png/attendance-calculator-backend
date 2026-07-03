@@ -18,7 +18,7 @@ router.post("/login", loginUser);
 
 
 //protected route
-router.get("/profile", verifyJWT, getCurrentUser);
+
 router.post("/logout",verifyJWT,logoutUser);
 router.post("/refresh-token", refreshAccessToken);
 router.get(
