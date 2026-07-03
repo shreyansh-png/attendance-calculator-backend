@@ -10,12 +10,15 @@ import holidayRouter from "./routes/holiday.routes.js";
 import extraClassRouter from "./routes/extraClass.routes.js";
 import cancelledClassRouter from "./routes/cancelledClass.routes.js";
 import adminRouter from "./routes/admin.routes.js";
-
+import cors from "cors";
 
 
 
 const app = express();
-
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 // Middlewares
 app.use(express.json());
 app.use(cookieParser());
