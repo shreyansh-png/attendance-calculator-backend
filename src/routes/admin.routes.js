@@ -1,80 +1,8 @@
-import jwt from "jsonwebtoken";
+import { Router } from "express";
+import { adminLogin } from "../controllers/admin.controller.js";
 
-const adminLogin = async (req, res) => {
+const router = Router();
 
-    try {
+router.post("/login", adminLogin);
 
-        const { adminId, password } = req.body;
-
-        if (!adminId || !password) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "All fields are required"
-
-            });
-
-        }
-
-        if (
-            adminId !== process.env.ADMIN_ID ||
-            password !== process.env.ADMIN_PASSWORD
-        ) {
-
-            return res.status(401).json({
-
-                success: false,
-
-                message: "Invalid Admin Credentials"
-
-            });
-
-        }
-
-        const token = jwt.sign(
-
-            {
-
-                role: "admin"
-
-            },
-
-            process.env.ACCESS_TOKEN_SECRET,
-
-            {
-
-                expiresIn: "1d"
-
-            }
-
-        );
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Admin Login Successful",
-
-            token
-
-        });
-
-    }
-
-    catch (error) {
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
-};
-
-export { adminLogin };
+export default router;
