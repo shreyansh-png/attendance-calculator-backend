@@ -94,6 +94,8 @@ const loginUser = async (req, res) => {
             secure: false, // Change to true in production (HTTPS)
         };
 
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+
         // Send Cookies + Response
         return res
             .status(200)
@@ -102,8 +104,11 @@ const loginUser = async (req, res) => {
             .json({
                 success: true,
                 message: "Login Successful",
-                accessToken,
-                refreshToken
+                data: {
+                    user: loggedInUser,
+                    accessToken,
+                    refreshToken
+                }
             });
 
     } catch (error) {
