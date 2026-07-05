@@ -298,11 +298,12 @@ const getTodayTimetable = async (req, res) => {
 
         const student = req.user;
 
-        const todayDate = new Date();
-        todayDate.setHours(0, 0, 0, 0);
+        const serverTime = new Date();
+        const istTime = new Date(serverTime.getTime() + (5.5 * 60 * 60 * 1000));
+        const todayDate = new Date(Date.UTC(istTime.getUTCFullYear(), istTime.getUTCMonth(), istTime.getUTCDate()));
 
         const tomorrow = new Date(todayDate);
-        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
 
         // ============================
         // Holiday Check
@@ -392,7 +393,7 @@ const getTodayTimetable = async (req, res) => {
 
         ];
 
-        const today = days[todayDate.getDay()];
+        const today = days[todayDate.getUTCDay()];
 
         if (today === "sunday") {
 

@@ -19,7 +19,10 @@ const getDashboard = async (req, res) => {
             "saturday"
         ];
 
-        const today = days[new Date().getDay()];
+        const serverTime = new Date();
+        const istTime = new Date(serverTime.getTime() + (5.5 * 60 * 60 * 1000));
+        const todayDate = new Date(Date.UTC(istTime.getUTCFullYear(), istTime.getUTCMonth(), istTime.getUTCDate()));
+        const today = days[todayDate.getUTCDay()];
 
         // Student Timetable
         const timetable = await Timetable.findOne({

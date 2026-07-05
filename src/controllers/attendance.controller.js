@@ -76,9 +76,10 @@ if (!selectedClass) {
             });
         }
 
-        // Today's date (00:00:00)
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // Today's date (00:00:00) bucketed for IST
+        const serverTime = new Date();
+        const istTime = new Date(serverTime.getTime() + (5.5 * 60 * 60 * 1000));
+        const today = new Date(Date.UTC(istTime.getUTCFullYear(), istTime.getUTCMonth(), istTime.getUTCDate()));
 
         // Check if already marked
         const alreadyMarked = await Attendance.findOne({
