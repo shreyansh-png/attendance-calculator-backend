@@ -21,7 +21,7 @@ const markAttendance = async (req, res) => {
             batch: student.batch,
             branch: student.branch,
             semester: student.semester,
-            section: student.section
+            $or: [{ section: student.section }, { section: "A,B" }]
         });
 
         if (!timetable) {

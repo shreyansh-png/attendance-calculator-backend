@@ -239,7 +239,7 @@ const getMyTimetable = async (req, res) => {
             batch,
             branch,
             semester,
-            section
+            $or: [{ section }, { section: "A,B" }]
 
         })
 
@@ -345,7 +345,7 @@ const getTodayTimetable = async (req, res) => {
 
             semester: student.semester,
 
-            section: student.section
+            $or: [{ section: student.section }, { section: "A,B" }]
 
         }).populate([
 

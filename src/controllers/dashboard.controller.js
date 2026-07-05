@@ -30,7 +30,7 @@ const getDashboard = async (req, res) => {
 
             semester: student.semester,
 
-            section: student.section
+            $or: [{ section: student.section }, { section: "A,B" }]
 
         }).populate([
             "schedule.monday.subjectId",
