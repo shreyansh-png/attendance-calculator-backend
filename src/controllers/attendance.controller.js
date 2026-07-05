@@ -4,12 +4,19 @@ import ExtraClass from "../models/extraClass.model.js";
 const markAttendance = async (req, res) => {
     try {
 
-        const { classId } = req.body;
+        const { classId, status = "Present" } = req.body;
 
         if (!classId) {
             return res.status(400).json({
                 success: false,
                 message: "Class ID is required"
+            });
+        }
+
+        if (status !== "Present" && status !== "Absent") {
+            return res.status(400).json({
+                success: false,
+                message: "Status must be Present or Absent"
             });
         }
 
@@ -81,7 +88,7 @@ if (!selectedClass) {
     $gte:today,
     $lt:new Date(today.getTime()+24*60*60*1000)
 },
-            status: "Present"
+            status: { $in: ["Present", "Absent"] }
         });
 
         if (alreadyMarked) {
@@ -103,7 +110,7 @@ const attendance = await Attendance.findOneAndUpdate(
         status: "Pending"
     },
     {
-        status: "Present",
+        status: status,
         markedAt:new Date()
     },
     {
