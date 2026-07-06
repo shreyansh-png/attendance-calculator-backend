@@ -534,7 +534,7 @@ const getTodayTimetable = async (req, res) => {
 
         });
 
-    }
+    }//changes check
 
     catch (error) {
 
