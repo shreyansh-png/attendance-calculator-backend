@@ -6,6 +6,7 @@ import { registerUser,
     refreshAccessToken,
     getProfile,
     updateProfile,
+    forgotPassword,
     changePassword
  } from "../controllers/user.controller.js";
 
@@ -15,6 +16,7 @@ const router = Router();
 
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/forgot-password", forgotPassword);
 
 
 //protected route

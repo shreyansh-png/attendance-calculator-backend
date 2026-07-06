@@ -522,19 +522,51 @@ const getTodayTimetable = async (req, res) => {
 
         }
 
+        const classIds = classes.map(cls => cls._id);
+
+        const attendanceRecords = await Attendance.find({
+
+            studentId: student._id,
+
+            classId: { $in: classIds },
+
+            date: todayDate
+
+        });
+
+        const statusByClassId = Object.fromEntries(
+
+            attendanceRecords.map(record => [
+                record.classId.toString(),
+                record.status
+            ])
+
+        );
+
+        const classesWithStatus = classes.map(cls => {
+
+            const classObj = cls.toObject ? cls.toObject() : { ...cls };
+
+            return {
+                ...classObj,
+                attendanceStatus: statusByClassId[cls._id.toString()] || "Pending"
+            };
+
+        });
+
         return res.status(200).json({
 
             success: true,
 
             day: today,
 
-            totalClasses: classes.length,
+            totalClasses: classesWithStatus.length,
 
-            classes
+            classes: classesWithStatus
 
         });
 
-    }//changes check
+    }
 
     catch (error) {
 
