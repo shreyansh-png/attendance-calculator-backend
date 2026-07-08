@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 const registerUser = async (req, res) => {
     try {
+
         const { fullName, email, password, semester, branch, rollNumber, section, batch } = req.body;
 
         if (!fullName || !email || !password || !semester || !branch || !rollNumber || !section || !batch) {
@@ -13,7 +14,7 @@ const registerUser = async (req, res) => {
             });
         }
 
-        const existingUser = await User.findOne({ $or: [{ email }, { rollNumber }] });
+        const existingUser = await User.findOne({ email });
 
         if (existingUser) {
             return res.status(409).json({
@@ -49,7 +50,6 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-
         const { email, password } = req.body;
 
         if (!email || !password) {
@@ -58,45 +58,35 @@ const loginUser = async (req, res) => {
                 message: "Email and Password are required"
             });
         }
-
         const user = await User.findOne({ email });
-
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "User not found"
             });
         }
-
         const isPasswordCorrect = await bcrypt.compare(
             password,
             user.password
         );
-
         if (!isPasswordCorrect) {
             return res.status(401).json({
                 success: false,
                 message: "Invalid credentials"
             });
         }
-
-        // Generate Tokens
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
-        // Save Refresh Token in Database
         user.refreshToken = refreshToken;
         await user.save({ validateBeforeSave: false });
 
-        // Cookie Options
         const options = {
             httpOnly: true,
-            secure: false, // Change to true in production (HTTPS)
+            secure: false,
         };
-
         const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
-
-        // Send Cookies + Response
+        //"Return all fields except password and refreshToken."
         return res
             .status(200)
             .cookie("accessToken", accessToken, options)
@@ -112,25 +102,21 @@ const loginUser = async (req, res) => {
             });
 
     } catch (error) {
-
         return res.status(500).json({
             success: false,
             message: error.message
         });
-
     }
 };
 
 const getCurrentUser = async (req, res) => {
-
     return res.status(200).json({
         success: true,
         user: req.user
     });
+}
 
-};
-
-const logoutUser =  async (req,res) => {
+const logoutUser = async (req, res) => {
     await User.findByIdAndUpdate(
         req.user._id,
         {
@@ -143,40 +129,36 @@ const logoutUser =  async (req,res) => {
         }
     );
 
-    const options ={
+    const options = {
         httpOnly: true,
-        secure: false, // Change to true in production (HTTPS)
+        secure: false,
     };
 
     return res
-    .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
-    .json({
-        success: true,
-        message: "Logout Successful"
-    });
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json({
+            success: true,
+            message: "Logout Successful"
+        });
 };
 
 
 const refreshAccessToken = async (req, res) => {
     try {
-
         const incomingRefreshToken =
             req.cookies.refreshToken;
-
         if (!incomingRefreshToken) {
             return res.status(401).json({
                 success: false,
                 message: "Refresh Token Missing"
             });
         }
-
         const decodedToken = jwt.verify(
             incomingRefreshToken,
             process.env.REFRESH_TOKEN_SECRET
         );
-
         const user = await User.findById(
             decodedToken._id
         );
@@ -241,52 +223,33 @@ const refreshAccessToken = async (req, res) => {
 };
 
 const getProfile = async (req, res) => {
-
     try {
-
         const user = await User.findById(req.user._id)
             .select("-password -refreshToken");
-
         if (!user) {
-
             return res.status(404).json({
-
                 success: false,
-
                 message: "User not found"
-
             });
-
         }
 
         return res.status(200).json({
-
             success: true,
-
             data: user
-
         });
-
     }
 
     catch (error) {
 
         return res.status(500).json({
-
             success: false,
-
             message: error.message
-
         });
-
     }
-
 };
 
 const updateProfile = async (req, res) => {
-
     try {
-
         const {
             fullName,
             semester,
@@ -296,13 +259,9 @@ const updateProfile = async (req, res) => {
         const user = await User.findById(req.user._id);
 
         if (!user) {
-
             return res.status(404).json({
-
                 success: false,
-
                 message: "User not found"
-
             });
 
         }
@@ -310,186 +269,81 @@ const updateProfile = async (req, res) => {
         if (fullName) {
             user.fullName = fullName;
         }
-
         if (semester) {
             user.semester = semester;
         }
-
         if (section) {
             user.section = section;
         }
-
         await user.save();
 
         const updatedUser = await User.findById(user._id)
             .select("-password -refreshToken");
 
         return res.status(200).json({
-
             success: true,
-
             message: "Profile updated successfully",
-
             data: updatedUser
-
         });
-
     }
 
     catch (error) {
-
         return res.status(500).json({
-
             success: false,
-
             message: error.message
-
         });
-
     }
-
-};
-
-const forgotPassword = async (req, res) => {
-
-    try {
-
-        const { email, newPassword } = req.body;
-
-        if (!email || !newPassword) {
-
-            return res.status(400).json({
-
-                success: false,
-
-                message: "Email and new password are required"
-
-            });
-
-        }
-
-        const user = await User.findOne({ email: email.toLowerCase().trim() });
-
-        if (!user) {
-
-            return res.status(404).json({
-
-                success: false,
-
-                message: "No account found with this email"
-
-            });
-
-        }
-
-        user.password = newPassword;
-
-        await user.save();
-
-        return res.status(200).json({
-
-            success: true,
-
-            message: "Password reset successfully"
-
-        });
-
-    }
-
-    catch (error) {
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message
-
-        });
-
-    }
-
 };
 
 const changePassword = async (req, res) => {
 
     try {
-
         const {
-
             verificationCode,
-
             newPassword
-
         } = req.body;
 
         if (!verificationCode || !newPassword) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "All fields are required"
-
             });
-
         }
 
         const user = await User.findById(req.user._id);
 
         if (!user) {
-
             return res.status(404).json({
-
                 success: false,
-
                 message: "User not found"
-
             });
-
         }
 
         const expectedCode =
-
             user.rollNumber.slice(-2) + user.branch;
-
         if (verificationCode !== expectedCode) {
-
             return res.status(400).json({
-
                 success: false,
-
                 message: "Invalid Verification Code"
-
             });
-
         }
 
         user.password = newPassword;
-
         await user.save();
 
         return res.status(200).json({
-
             success: true,
-
             message: "Password changed successfully"
-
         });
-
     }
 
     catch (error) {
 
         return res.status(500).json({
-
             success: false,
-
             message: error.message
-
         });
-
     }
-
 };
 
 export {
@@ -498,7 +352,6 @@ export {
     getCurrentUser,
     getProfile,
     updateProfile,
-    forgotPassword,
     changePassword,
     logoutUser,
     refreshAccessToken
