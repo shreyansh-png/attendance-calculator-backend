@@ -4,9 +4,9 @@ const adminLogin = async (req, res) => {
 
     try {
 
-        const { adminId, password } = req.body;
+        const { adminEmail, password } = req.body;
 
-        if (!adminId || !password) {
+        if (!adminEmail || !password) {
 
             return res.status(400).json({
 
@@ -18,9 +18,10 @@ const adminLogin = async (req, res) => {
 
         }
 
+        // Compare with ADMIN_EMAIL and ADMIN_SECRET from .env
         if (
-            adminId !== process.env.ADMIN_ID ||
-            password !== process.env.ADMIN_PASSWORD
+            adminEmail !== process.env.ADMIN_EMAIL ||
+            password !== process.env.ADMIN_SECRET
         ) {
 
             return res.status(401).json({
