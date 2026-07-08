@@ -4,9 +4,11 @@ const adminLogin = async (req, res) => {
 
     try {
 
-        const { adminEmail, password } = req.body;
+        const { adminEmail, adminId, email, password } = req.body;
+        const adminIdentifier = (adminEmail || adminId || email || "").trim().toLowerCase();
+        const configuredAdminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
 
-        if (!adminEmail || !password) {
+        if (!adminIdentifier || !password) {
 
             return res.status(400).json({
 
@@ -20,7 +22,7 @@ const adminLogin = async (req, res) => {
 
         // Compare with ADMIN_EMAIL and ADMIN_SECRET from .env
         if (
-            adminEmail !== process.env.ADMIN_EMAIL ||
+            adminIdentifier !== configuredAdminEmail ||
             password !== process.env.ADMIN_SECRET
         ) {
 
@@ -57,6 +59,11 @@ const adminLogin = async (req, res) => {
             success: true,
 
             message: "Admin Login Successful",
+
+            data: {
+                token,
+                role: "admin"
+            },
 
             token
 
