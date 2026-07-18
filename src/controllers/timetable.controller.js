@@ -370,11 +370,36 @@ const getTodayTimetable = async (req, res) => {
             )
 
         );
+
+        // ============================
+        // Fetch Attendance Status for Today
+        // ============================
+
+        const attendanceRecords = await Attendance.find({
+            studentId: student._id,
+            date: {
+                $gte: todayDate,
+                $lt: tomorrow
+            }
+        }).lean();
+
+        // Build a map: classId -> status
+        const attendanceMap = {};
+        attendanceRecords.forEach(record => {
+            attendanceMap[record.classId.toString()] = record.status;
+        });
+
+        // Attach attendanceStatus to each class
+        const classesWithStatus = classes.map(cls => ({
+            ...cls,
+            attendanceStatus: attendanceMap[cls._id.toString()] || "Pending"
+        }));
+
         return res.status(200).json({
             success: true,
             day: today,
-            totalClasses: classes.length,
-            classes
+            totalClasses: classesWithStatus.length,
+            classes: classesWithStatus
         });
 
     }
